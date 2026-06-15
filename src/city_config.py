@@ -1,0 +1,29 @@
+"""Parametry symulacji 40 dronów na tle mapy Gliwic."""
+
+GLIWICE_CENTER_LAT = 50.2945
+GLIWICE_CENTER_LON = 18.6714
+
+# Polski układ współrzędnych płaskich w metrach.
+METRIC_CRS = "EPSG:2180"
+
+# 72 * 250 m = 18 km, 56 * 250 m = 14 km.
+CELL_SIZE_M = 250
+GRID_WIDTH = 72
+GRID_HEIGHT = 56
+
+DRONES_PER_SIDE = 20
+DRONE_COUNT = DRONES_PER_SIDE * 2
+
+# Stałe pułapy przelotowe. Drony na różnych pułapach mogą się mijać.
+ALTITUDE_LEVELS_M = (60, 80, 100, 120)
+
+CITY_MAX_ENERGY = 75
+MIN_INITIAL_ENERGY = 24
+MAX_INITIAL_ENERGY = 65
+MIN_FINAL_ENERGY = 1
+
+CHARGER_CAPACITY = 1
+MAX_TIME_STEPS = 190
+MAX_EXPANSIONS_PER_DRONE = 300_000
+
+RANDOM_SEED = 20260615

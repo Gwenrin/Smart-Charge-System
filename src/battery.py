@@ -4,18 +4,9 @@ from typing import Tuple
 
 Position = Tuple[int, int]
 
-# Maksymalna pojemność baterii.
 MAX_ENERGY: int = 12
-
-# Koszt energetyczny ruchu na sąsiednie pole.
 MOVE_COST: int = 1
-
-# Koszt energetyczny czekania.
-# Na razie 0, bo dron może chwilę zawisnąć bez uproszczonego zużycia.
 WAIT_COST: int = 0
-
-# Minimalna energia, z jaką dron może zakończyć zadanie.
-# Dzięki temu dron nie może skończyć z E=0.
 MIN_FINAL_ENERGY: int = 1
 
 
@@ -32,14 +23,14 @@ def consume(energy: int, cost: int) -> int:
     return energy - cost
 
 
-def recharge(_: int) -> int:
+def recharge(_: int, max_energy: int = MAX_ENERGY) -> int:
     """
-    Ładowanie na stacji.
+    Zwraca poziom energii po pełnym ładowaniu.
 
-    W tej końcowej wersji 2D przyjmujemy uproszczenie:
-    wejście na ładowarkę natychmiast odnawia baterię do pełna.
+    Parametr max_energy pozwala pozostawić MAX_ENERGY=12 dla mapy 8x6,
+    a w symulacji miejskiej użyć większej pojemności baterii.
     """
-    return MAX_ENERGY
+    return max_energy
 
 
 def will_have_energy(energy: int, cost: int) -> bool:

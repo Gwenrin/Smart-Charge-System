@@ -6,14 +6,6 @@ Position = Tuple[int, int]
 
 
 class GridMap:
-    """
-    Mapa kratowa 2D.
-
-    Oznaczenia:
-    0 = wolne pole
-    1 = przeszkoda
-    """
-
     ACTIONS: List[Position] = [
         (0, 0),    # czekaj
         (0, -1),   # góra
@@ -22,7 +14,11 @@ class GridMap:
         (-1, 0),   # lewo
     ]
 
-    def __init__(self, grid: List[List[int]], chargers: Set[Position] | Dict[Position, int]):
+    def __init__(
+        self,
+        grid: List[List[int]],
+        chargers: Set[Position] | Dict[Position, int],
+    ):
         if not grid or not grid[0]:
             raise ValueError("Mapa nie może być pusta.")
 
@@ -30,7 +26,9 @@ class GridMap:
 
         for row in grid:
             if len(row) != width:
-                raise ValueError("Wszystkie wiersze mapy muszą mieć taką samą długość.")
+                raise ValueError(
+                    "Wszystkie wiersze mapy muszą mieć taką samą długość."
+                )
 
         self.grid = grid
         self.height = len(grid)
@@ -42,6 +40,25 @@ class GridMap:
         else:
             self.charging_stations = set(chargers)
             self.station_capacity = {pos: 1 for pos in chargers}
+
+        self._neighbors_cache: Dict[Position, Tuple[Position, ...]] = {}
+
+        for y in range(self.height):
+            for x in range(self.width):
+                position = (x, y)
+
+                if not self.is_walkable(position):
+                    continue
+
+                neighbors: List[Position] = []
+
+                for dx, dy in self.ACTIONS:
+                    next_position = (x + dx, y + dy)
+
+                    if self.is_walkable(next_position):
+                        neighbors.append(next_position)
+
+                self._neighbors_cache[position] = tuple(neighbors)
 
     def in_bounds(self, position: Position) -> bool:
         x, y = position
@@ -61,17 +78,7 @@ class GridMap:
         return self.station_capacity.get(position, 0)
 
     def neighbors_with_wait(self, position: Position) -> List[Position]:
-        result: List[Position] = []
-
-        x, y = position
-
-        for dx, dy in self.ACTIONS:
-            next_position = (x + dx, y + dy)
-
-            if self.is_walkable(next_position):
-                result.append(next_position)
-
-        return result
+        return list(self._neighbors_cache.get(position, ()))
 
     def print_map(self) -> None:
         for row in self.grid:
