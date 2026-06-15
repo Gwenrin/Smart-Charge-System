@@ -5,12 +5,12 @@ from __future__ import annotations
 try:
     from .gliwice_scenario import generate_gliwice_scenario
     from .grid_map import GridMap
-    from .prioritized_epea import plan_all_drones, validate_paths
+    from .mapf_cbs import plan_all_drones_mapf, validate_paths
     from .visualization import draw_gliwice_environment
 except ImportError:
     from gliwice_scenario import generate_gliwice_scenario
     from grid_map import GridMap
-    from prioritized_epea import plan_all_drones, validate_paths
+    from mapf_cbs import plan_all_drones_mapf, validate_paths
     from visualization import draw_gliwice_environment
 
 
@@ -20,7 +20,7 @@ def main() -> None:
 
     print("Planowanie tras 40 dronów...")
 
-    paths, statistics = plan_all_drones(
+    paths, statistics = plan_all_drones_mapf(
         grid_map=grid_map,
         drones=scenario.drones,
         tasks=scenario.tasks,
