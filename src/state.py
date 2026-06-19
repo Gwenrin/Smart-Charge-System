@@ -1,4 +1,4 @@
-"""State definitions for Smart Charge System."""
+"""Podstawowe stany drona."""
 
 from dataclasses import dataclass
 from typing import Tuple

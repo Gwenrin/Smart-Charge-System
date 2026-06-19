@@ -15,6 +15,7 @@ AirEdge = Tuple[AirPosition, AirPosition]
 
 
 class ReservationTable:
+    # Puste struktury rezerwacji.
     def __init__(self, charger_capacities: Dict[Position, int]) -> None:
         self.air_positions: DefaultDict[int, Set[AirPosition]] = defaultdict(set)
         self.edges: DefaultDict[int, Set[AirEdge]] = defaultdict(set)
@@ -24,6 +25,7 @@ class ReservationTable:
         self.permanent_landings: Dict[Position, int] = {}
         self.charger_capacities = dict(charger_capacities)
 
+    # Wolne pole lub wolna ladowarka.
     def is_position_free(
         self,
         position: Position,
@@ -53,6 +55,7 @@ class ReservationTable:
             or (position, altitude) not in occupied_at_time
         )
 
+    # Brak przejazdu w przeciwnym kierunku.
     def is_edge_free(
         self,
         current: Position,
@@ -68,6 +71,7 @@ class ReservationTable:
 
         return reserved_edges is None or reverse_edge not in reserved_edges
 
+    # Rezerwacja jednego kroku ruchu.
     def reserve_step(
         self,
         current: Position,
@@ -88,6 +92,7 @@ class ReservationTable:
             )
         )
 
+    # Rezerwacja pozycji startowej.
     def reserve_start(
         self,
         position: Position,
@@ -99,6 +104,7 @@ class ReservationTable:
         else:
             self.air_positions[0].add((position, altitude))
 
+    # Zablokowanie koncowego ladowiska.
     def reserve_landing_permanently(
         self,
         position: Position,

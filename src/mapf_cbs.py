@@ -1,4 +1,4 @@
-"""Full MAPF planner: CBS high level with EPEA* low-level search."""
+"""Planowanie MAPF: CBS globalnie, EPEA* dla pojedynczego drona."""
 
 from __future__ import annotations
 
@@ -110,10 +110,12 @@ class CBSNode:
     makespan: int
 
 
+# Odleglosc po siatce.
 def manhattan(first: Position, second: Position) -> int:
     return abs(first[0] - second[0]) + abs(first[1] - second[1])
 
 
+# Prosta ocena drogi przez punkt dostawy.
 def heuristic(
     position: Position,
     delivery_goal: Position,
@@ -129,6 +131,7 @@ def heuristic(
     )
 
 
+# Stan sciezki w zadanym czasie.
 def _state_at(path: List[DroneState], time_step: int) -> DroneState:
     if time_step < len(path):
         return path[time_step]
@@ -136,10 +139,12 @@ def _state_at(path: List[DroneState], time_step: int) -> DroneState:
     return path[-1]
 
 
+# Koszt jako liczba krokow.
 def _path_cost(path: List[DroneState]) -> int:
     return len(path) - 1
 
 
+# Liczba faktycznych ladowan.
 def _charging_steps(path: List[DroneState]) -> int:
     return sum(
         1
@@ -149,6 +154,7 @@ def _charging_steps(path: List[DroneState]) -> int:
     )
 
 
+# Moment odwiedzenia punktu dostawy.
 def _delivery_time(path: List[DroneState], delivery_goal: Position) -> int:
     return next(
         index
@@ -157,6 +163,7 @@ def _delivery_time(path: List[DroneState], delivery_goal: Position) -> int:
     )
 
 
+# Statystyki pojedynczego planu.
 def _make_plan_stats(
     result: SinglePlanResult,
     path: List[DroneState],
@@ -171,6 +178,7 @@ def _make_plan_stats(
     }
 
 
+# Ograniczenia jednego drona w szybszej postaci.
 def _build_constraint_table(
     constraints: ConstraintSet,
     drone_id: int,
@@ -210,6 +218,7 @@ def _build_constraint_table(
     )
 
 
+# Sprawdzenie zakazanego pola.
 def _violates_vertex_constraint(
     table: ConstraintTable,
     position: Position,
@@ -218,6 +227,7 @@ def _violates_vertex_constraint(
     return position in table.vertex.get(time_step, frozenset())
 
 
+# Sprawdzenie zakazanego przejscia.
 def _violates_edge_constraint(
     table: ConstraintTable,
     current: Position,
@@ -230,6 +240,7 @@ def _violates_edge_constraint(
     ) in table.edge.get(arrival_time, frozenset())
 
 
+# Cel bez pozniejszych ograniczen.
 def _goal_is_safe(
     state: SearchState,
     landing_goal: Position,
@@ -248,6 +259,7 @@ def _goal_is_safe(
     return True
 
 
+# Dozwolone ruchy z biezacego stanu.
 def _legal_successor_operators(
     grid_map: GridMap,
     current: SearchState,
@@ -348,6 +360,7 @@ def _legal_successor_operators(
     return result
 
 
+# Przyrost wartosci f po ruchu.
 def _delta_f(
     current: SearchState,
     successor: SearchState,
@@ -370,6 +383,7 @@ def _delta_f(
     return successor_f - current_f
 
 
+# Wybor operatorow dla konkretnego delta_f.
 def _operator_selection_function(
     grid_map: GridMap,
     current: SearchState,
@@ -421,6 +435,7 @@ def _operator_selection_function(
     )
 
 
+# Odtworzenie trasy z rodzicow.
 def _reconstruct_path(
     parents: Dict[SearchState, Optional[SearchState]],
     goal_state: SearchState,
@@ -445,6 +460,7 @@ def _reconstruct_path(
     ]
 
 
+# EPEA* dla jednego drona z ograniczeniami CBS.
 def _plan_single_drone_constrained_epea(
     grid_map: GridMap,
     drone_id: int,
@@ -606,6 +622,7 @@ def _plan_single_drone_constrained_epea(
     return None
 
 
+# Pierwszy konflikt w zestawie tras.
 def _find_first_conflict(
     paths: Dict[int, List[DroneState]],
     chargers: Dict[Position, int],
@@ -690,12 +707,13 @@ def _find_first_conflict(
     return None
 
 
+# Dwa warianty ograniczen po konflikcie.
 def _constraints_for_conflict(
     conflict: Conflict,
 ) -> Tuple[Tuple[int, VertexConstraint | EdgeConstraint], ...]:
     if conflict.kind in {"vertex", "charger"}:
         if conflict.position is None:
-            raise ValueError("Vertex conflict without a position.")
+            raise ValueError("Konflikt pola bez podanej pozycji.")
 
         return (
             (
@@ -723,7 +741,7 @@ def _constraints_for_conflict(
             or conflict.second_from is None
             or conflict.second_to is None
         ):
-            raise ValueError("Edge conflict without move data.")
+            raise ValueError("Konflikt krawedzi bez danych ruchu.")
 
         return (
             (
@@ -746,9 +764,10 @@ def _constraints_for_conflict(
             ),
         )
 
-    raise ValueError(f"Unknown conflict kind: {conflict.kind}")
+    raise ValueError(f"Nieznany typ konfliktu: {conflict.kind}")
 
 
+# Dopisanie jednego ograniczenia.
 def _extend_constraints(
     constraints: ConstraintSet,
     new_constraint: VertexConstraint | EdgeConstraint,
@@ -765,11 +784,13 @@ def _extend_constraints(
     )
 
 
+# Koszt wezla CBS.
 def _node_cost(paths: Dict[int, List[DroneState]]) -> Tuple[int, int]:
     costs = [_path_cost(path) for path in paths.values()]
     return sum(costs), max(costs)
 
 
+# Format wspolny z wizualizacja.
 def _format_paths(
     paths: Dict[int, List[DroneState]],
 ) -> Dict[int, List[JointEnergyState]]:
@@ -779,6 +800,7 @@ def _format_paths(
     }
 
 
+# Planowanie wszystkich dronow przez CBS.
 def plan_all_drones_mapf(
     grid_map: GridMap,
     drones: List[DroneState],
@@ -789,23 +811,24 @@ def plan_all_drones_mapf(
     max_cbs_nodes: int = 10_000,
     use_warm_start: bool = True,
 ) -> Tuple[Dict[int, List[JointEnergyState]], Dict[str, object]]:
-    """Plan all drones with Conflict-Based Search and EPEA* low-level plans."""
     if len(drones) != len(tasks):
-        raise ValueError("Drone count must match task count.")
+        raise ValueError("Liczba dronow musi byc rowna liczbie zadan.")
 
     for drone_id, drone in enumerate(drones):
         if not grid_map.is_walkable(drone.position):
-            raise ValueError(f"Invalid start for drone {drone_id}: {drone.position}")
+            raise ValueError(
+                f"Niepoprawny start drona {drone_id}: {drone.position}"
+            )
 
         if not grid_map.is_walkable(tasks[drone_id].location):
             raise ValueError(
-                f"Invalid delivery goal for drone {drone_id}: "
+                f"Niepoprawny punkt dostawy drona {drone_id}: "
                 f"{tasks[drone_id].location}"
             )
 
         if not grid_map.is_walkable(landing_goals[drone_id]):
             raise ValueError(
-                f"Invalid landing goal for drone {drone_id}: "
+                f"Niepoprawne ladowisko drona {drone_id}: "
                 f"{landing_goals[drone_id]}"
             )
 
@@ -818,7 +841,7 @@ def plan_all_drones_mapf(
 
     try:
         if not use_warm_start:
-            raise RuntimeError("Warm start disabled.")
+            raise RuntimeError("Start z rezerwacji wylaczony.")
 
         warm_paths, warm_statistics = plan_prioritized_epea(
             grid_map=grid_map,
@@ -859,7 +882,9 @@ def plan_all_drones_mapf(
             )
 
             if result is None:
-                raise RuntimeError(f"No initial path for drone {drone_id}.")
+                raise RuntimeError(
+                    f"Brak trasy poczatkowej dla drona {drone_id}."
+                )
 
             root_paths[drone_id] = result.path
             root_per_drone[drone_id] = _make_plan_stats(result, result.path)
@@ -897,7 +922,7 @@ def plan_all_drones_mapf(
         high_level_expanded += 1
 
         if high_level_expanded > max_cbs_nodes:
-            raise RuntimeError("CBS node limit exceeded.")
+            raise RuntimeError("Przekroczono limit wezlow CBS.")
 
         conflict = _find_first_conflict(
             paths=node.paths,
@@ -989,14 +1014,14 @@ def plan_all_drones_mapf(
             )
             high_level_generated += 1
 
-    raise RuntimeError("CBS failed to find conflict-free paths.")
+    raise RuntimeError("CBS nie znalazl tras bez konfliktow.")
 
 
+# Walidacja gotowych tras MAPF.
 def validate_paths(
     paths: Dict[int, List[JointEnergyState]],
     chargers: Dict[Position, int],
 ) -> List[str]:
-    """Return a list of detected MAPF conflicts."""
     simple_paths = {
         drone_id: [state[0] for state in path]
         for drone_id, path in paths.items()
@@ -1008,8 +1033,8 @@ def validate_paths(
 
     return [
         (
-            f"{conflict.kind} conflict between drones "
-            f"{conflict.first_id} and {conflict.second_id} "
-            f"at time {conflict.time_step}"
+            f"Konflikt {conflict.kind}: drony "
+            f"{conflict.first_id} i {conflict.second_id}, "
+            f"czas {conflict.time_step}"
         )
     ]

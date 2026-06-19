@@ -1,0 +1,2 @@
+Należy najpierw zainstalować zależności:
+pip install -r src\requirements.txt

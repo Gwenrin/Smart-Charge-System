@@ -32,6 +32,7 @@ except ImportError:
     from tasks import Task
 
 
+# Rysunek malej mapy siatkowej.
 def draw_environment(
     grid: List[List[int]],
     chargers: Set[Position] | Dict[Position, int],
@@ -113,6 +114,7 @@ def draw_environment(
     plt.show()
 
 
+# Kolory przypisane do pulapow.
 def _altitude_colors(paths: Dict[int, List[JointEnergyState]]) -> Dict[int, object]:
     altitudes = sorted({path[0][0].altitude for path in paths.values()})
     color_map = plt.get_cmap("tab10")
@@ -123,6 +125,7 @@ def _altitude_colors(paths: Dict[int, List[JointEnergyState]]) -> Dict[int, obje
     }
 
 
+# Obiekty stale na mapie.
 def _draw_grid_objects(
     ax,
     grid: List[List[int]],
@@ -193,6 +196,7 @@ def _draw_grid_objects(
         )
 
 
+# Rysunek tras na podkladzie Gliwic.
 def draw_gliwice_environment(
     grid: List[List[int]],
     chargers: Dict[Position, int],
@@ -308,6 +312,7 @@ def draw_gliwice_environment(
     return fig, ax
 
 
+# Animacja ruchu dronow.
 def create_gliwice_animation(
     grid: List[List[int]],
     chargers: Dict[Position, int],
@@ -358,6 +363,7 @@ def create_gliwice_animation(
 
     max_time = max(len(path) for path in paths.values())
 
+    # Stan drona dla klatki animacji.
     def state_at(drone_id: int, time_step: int):
         path = paths[drone_id]
 
@@ -366,6 +372,7 @@ def create_gliwice_animation(
 
         return path[-1][0]
 
+    # Aktualizacja jednej klatki.
     def update(time_step: int):
         coordinates = [
             grid_to_metric(state_at(drone_id, time_step).position)

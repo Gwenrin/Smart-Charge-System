@@ -44,6 +44,7 @@ class GliwiceScenario:
     seed: int
 
 
+# Rowne rozstawienie pozycji startowych.
 def _distributed_rows(count: int) -> List[int]:
     """Rozmieszcza pola równomiernie od góry do dołu mapy."""
     margin = 2
@@ -55,6 +56,7 @@ def _distributed_rows(count: int) -> List[int]:
     ]
 
 
+# Zaznaczenie prostokatnej przeszkody.
 def _paint_rectangle(
     grid: List[List[int]],
     x0: int,
@@ -67,6 +69,7 @@ def _paint_rectangle(
             grid[y][x] = 1
 
 
+# Siatka z uproszczonymi strefami zakazu lotu.
 def _create_grid() -> List[List[int]]:
     """
     Tworzy uproszczone strefy niedostępne.
@@ -92,6 +95,7 @@ def _create_grid() -> List[List[int]]:
     return grid
 
 
+# Sprawdzenie pola na surowej siatce.
 def _is_walkable(grid: List[List[int]], position: Position) -> bool:
     x, y = position
     return (
@@ -101,6 +105,7 @@ def _is_walkable(grid: List[List[int]], position: Position) -> bool:
     )
 
 
+# Najblizsze wolne ladowiska.
 def _nearest_unique_slots(
     task_positions: Iterable[Position],
     landing_slots: Iterable[Position],
@@ -123,6 +128,7 @@ def _nearest_unique_slots(
     return assigned
 
 
+# Powtarzalny scenariusz miejski.
 def generate_gliwice_scenario(
     seed: int = RANDOM_SEED,
 ) -> GliwiceScenario:

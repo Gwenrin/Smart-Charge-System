@@ -57,10 +57,12 @@ class OperatorSelection:
     next_delta_f: Optional[int]
 
 
+# Odleglosc po siatce.
 def manhattan(first: Position, second: Position) -> int:
     return abs(first[0] - second[0]) + abs(first[1] - second[1])
 
 
+# Ocena drogi przez punkt dostawy.
 def heuristic(
     position: Position,
     delivery_goal: Position,
@@ -76,6 +78,7 @@ def heuristic(
     )
 
 
+# Odtworzenie trasy z rodzicow.
 def _reconstruct_path(
     parents: Dict[SearchState, Optional[SearchState]],
     goal_state: SearchState,
@@ -100,6 +103,7 @@ def _reconstruct_path(
     ]
 
 
+# Dozwolone ruchy z aktualnego stanu.
 def _legal_successor_operators(
     grid_map: GridMap,
     current: SearchState,
@@ -208,6 +212,7 @@ def _legal_successor_operators(
     return result
 
 
+# Przyrost wartosci f po ruchu.
 def _delta_f(
     current: SearchState,
     successor: SearchState,
@@ -230,6 +235,7 @@ def _delta_f(
     return successor_f - current_f
 
 
+# Wybor operatorow dla podanego delta_f.
 def _operator_selection_function(
     grid_map: GridMap,
     current: SearchState,
@@ -244,9 +250,9 @@ def _operator_selection_function(
     """
     EPEA* operator selection function.
 
-    Zwraca tylko tych następców, których operator powoduje dokładnie
+    Zwraca tylko tych nastepcow, ktorych operator powoduje dokladnie
     requested_delta_f. Reszta nie jest rozwijana teraz; wyznaczamy tylko
-    najbliższą większą wartość delta_f, aby ponownie włożyć stan do OPEN.
+    najblizsza wieksza wartosc delta_f, aby ponownie wlozyc stan do OPEN.
     """
     selected: List[SearchState] = []
     next_delta_f: Optional[int] = None
@@ -288,6 +294,7 @@ def _operator_selection_function(
     )
 
 
+# EPEA* dla pojedynczego drona.
 def plan_single_drone_epea(
     grid_map: GridMap,
     start: DroneState,
@@ -301,10 +308,10 @@ def plan_single_drone_epea(
     """
     Planuje trasę start -> dostawa -> lądowanie.
 
-    To jest niskopoziomowe EPEA*: stan jest rozwijany częściowo.
-    Operator selection function generuje tylko następców o zadanej
-    wartości delta_f. Ten sam stan wraca do OPEN z następną możliwą
-    wartością delta_f, jeżeli istnieją jeszcze nierozwinięte operatory.
+    To jest niskopoziomowe EPEA*: stan jest rozwijany czesciowo.
+    Operator selection function generuje tylko nastepcow o zadanej
+    wartosci delta_f. Ten sam stan wraca do OPEN z nastepna mozliwa
+    wartoscia delta_f, jezeli istnieja jeszcze nierozwiniete operatory.
     """
     if forbidden_positions is None:
         forbidden_positions = set()
@@ -332,7 +339,7 @@ def plan_single_drone_epea(
         start_state.delivery_completed,
     )
 
-    # epea_f, h, licznik, delta_f obsługiwane przy tym rozwinięciu, stan
+    # epea_f, h, licznik, delta_f obslugiwane przy tym rozwinieciu, stan
     open_heap: List[Tuple[int, int, int, int, SearchState]] = []
     counter = itertools.count()
 
@@ -476,6 +483,7 @@ def plan_single_drone_epea(
     return None
 
 
+# Zapis trasy w tablicy rezerwacji.
 def _reserve_path(
     path: List[DroneState],
     grid_map: GridMap,
@@ -501,6 +509,7 @@ def _reserve_path(
     )
 
 
+# Priorytetowe planowanie wszystkich dronow.
 def plan_all_drones(
     grid_map: GridMap,
     drones: List[DroneState],
@@ -606,6 +615,7 @@ def plan_all_drones(
     return paths, statistics
 
 
+# Kontrola konfliktow po zaplanowaniu.
 def validate_paths(
     paths: Dict[int, List[JointEnergyState]],
     chargers: Dict[Position, int],

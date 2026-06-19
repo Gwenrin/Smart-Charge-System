@@ -1,4 +1,4 @@
-"""Uruchomienie symulacji 40 dronów bez JupyterLab."""
+"""Uruchomienie symulacji 40 dronów"""
 
 from __future__ import annotations
 

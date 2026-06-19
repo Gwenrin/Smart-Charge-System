@@ -53,6 +53,7 @@ GRID_MIN_Y = CENTER_Y - MAP_HEIGHT_M / 2
 GRID_MAX_Y = CENTER_Y + MAP_HEIGHT_M / 2
 
 
+# Srodek pola w ukladzie metrycznym.
 def grid_to_metric(position: Position) -> Tuple[float, float]:
     """Zwraca środek pola siatki w układzie EPSG:2180."""
     grid_x, grid_y = position
@@ -63,6 +64,7 @@ def grid_to_metric(position: Position) -> Tuple[float, float]:
     return metric_x, metric_y
 
 
+# Zamiana metrow na indeks pola.
 def metric_to_grid(metric_x: float, metric_y: float) -> Position:
     """Zamienia współrzędne metryczne na indeks pola siatki."""
     grid_x = int((metric_x - GRID_MIN_X) // CELL_SIZE_M)
@@ -70,6 +72,7 @@ def metric_to_grid(metric_x: float, metric_y: float) -> Position:
     return grid_x, grid_y
 
 
+# Wspolrzedne geograficzne pola.
 def grid_to_wgs84(position: Position) -> Tuple[float, float]:
     """Zwraca punkt jako (szerokość, długość geograficzna)."""
     metric_x, metric_y = grid_to_metric(position)
@@ -77,12 +80,14 @@ def grid_to_wgs84(position: Position) -> Tuple[float, float]:
     return latitude, longitude
 
 
+# Zakres osi dla calej siatki.
 def set_gliwice_extent(ax) -> None:
     """Ustawia na osi zakres odpowiadający całej siatce miejskiej."""
     ax.set_xlim(GRID_MIN_X, GRID_MAX_X)
     ax.set_ylim(GRID_MIN_Y, GRID_MAX_Y)
 
 
+# Podklad mapowy, jezeli kafelki sa dostepne.
 def add_gliwice_basemap(ax, zoom: int = 12) -> bool:
     """
     Dodaje podkład OpenStreetMap.

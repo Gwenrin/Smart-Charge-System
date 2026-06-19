@@ -1,4 +1,4 @@
-"""Testy nowej symulacji miejskiej."""
+"""Testy symulacji miejskiej."""
 
 try:
     from .gliwice_scenario import generate_gliwice_scenario
@@ -10,6 +10,7 @@ except ImportError:
     from mapf_cbs import plan_all_drones_mapf, validate_paths
 
 
+# Podstawowe wymiary scenariusza.
 def test_scenario_has_40_drones_and_unique_goals():
     scenario = generate_gliwice_scenario()
 
@@ -20,6 +21,7 @@ def test_scenario_has_40_drones_and_unique_goals():
     assert len(set(scenario.landing_goals.values())) == 40
 
 
+# Pelne planowanie bez konfliktow.
 def test_all_drones_finish_without_conflicts():
     scenario = generate_gliwice_scenario()
     grid_map = GridMap(scenario.grid, scenario.chargers)

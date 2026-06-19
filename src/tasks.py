@@ -11,7 +11,7 @@ class Task:
     """
     Pojedyncze zadanie dostawy.
 
-    W tej wersji końcowej:
+    W tej wersji:
     - każde zadanie jest punktem docelowym jednego drona,
     - liczba zadań = liczba dronów.
     """
